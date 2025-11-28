@@ -1,0 +1,16 @@
+{
+  "name": "the-coders",
+  "version": "1.0.0",
+  "description": "Team.",
+  "main": "app.js",
+  "scripts": {
+    "dev": "nodemon app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "node": "^20.19.6",
+    "nodemon": "^3.1.11"
+  }
+}
