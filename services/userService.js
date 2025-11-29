@@ -1,10 +1,12 @@
 import { ListModel } from "../models/List.js";
 import { asyncHandler,successResponse } from "../utils/asynchandler.js";
 export const createlist = asyncHandler(async(req,res,next)=>{
-    const {title,description,date} =req.body
-      const userId = req.user._id;
+    const {userID,title,description,date} =req.body
+      if (!title) {
+    return res.status(400).json({ message: "Title is required" });
+  }
   const todo = await ListModel.create({
-    user: userId,
+    user: userID,
     title,
     description,
     date
@@ -13,36 +15,45 @@ export const createlist = asyncHandler(async(req,res,next)=>{
 })
 export const getalllist = asyncHandler(async(req,res,next)=>{
  const userId = req.user._id;
- const todos = await ListModel.find({user:userid})
+ const todos = await ListModel.find({user:userId})
    if (!todos || todos.length === 0) {
     return successResponse({ res, status: 200, data: [], message: "No todos found" });
   }
   return successResponse({ res, status: 200, data: todos });
 })
-export const updatelist = asyncHandler(async(req,res,next)=>{
-     const { id } = req.params; 
-  const updateData = req.body; 
-  const userId = req.user._id; 
-  const todo = await ListModel.findOneAndUpdate(
-    { _id: id, user: userId },
-    updateData,
-    { new: true } 
-  );
 
-  if (!todo) {
-    return next(new Error("Todo not found or not authorized", { cause: 404 }));
+export const updatelist = asyncHandler(async (req, res, next) => {
+  const { id } = req.params;
+  const { title, description, date, status } = req.body;
+
+  const list = await ListModel.findById(id);
+  if (!list) {
+    return res.status(404).json({ message: "List not found" });
   }
+  if (title) list.title = title;
+  if (description) list.description = description;
+  if (date) list.date = date;       // صححت الاسم
+  if (status) list.status = status; // صححت الاسم
+  await list.save();
+  return successResponse({
+    res,
+    status: 200,
+    data: list,
+  });
+});
 
-  return successResponse({ res, status: 200, data: todo, message: "Todo updated successfully" })
-})
-export const deletelist = asyncHandler(async(req,res,next)=>{
-  const { id } = req.params; 
-  const userId = req.user._id; 
-  const todo = await ListModel.findOneAndDelete({ _id: id, user: userId });
 
-  if (!todo) {
-    return next(new Error("Todo not found or not authorized", { cause: 404 }));
+export const deleteList = asyncHandler(async (req, res,next) => {
+  const { id } = req.params;
+  const list = await ListModel.findById(id);
+  if (!list) {
+    return res.status(404).json({ message: "List not found" });
   }
-
-  return successResponse({ res, status: 200, data: todo, message: "Todo deleted successfully" })
-})
+  await ListModel.deleteOne();
+  return successResponse({
+    res,
+    status: 200,
+    data: null,
+    message: "List deleted successfully",
+  });
+});

@@ -5,7 +5,7 @@ const listSchema = new mongoose.Schema(
         user:{
             type:mongoose.Schema.ObjectId,
             ref:"User",
-            required:true
+            required:false
         },
       title:{
         type: String,
@@ -22,7 +22,7 @@ const listSchema = new mongoose.Schema(
       stauts:{
         type:String,
         enum:{values:Object.values(stautsEnum)},
-        default:completed
+        default:stautsEnum.completed,
       }
     },
     {timestamps:true}
